@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using Entities = ToDo.Entities;
 
 namespace ToDo.Repositories
 {
-    public class ContextDB : DbContext
+    public class ContextDB : IdentityDbContext
     {
         public ContextDB(DbContextOptions<ContextDB> options) : base(options)
         {
@@ -18,9 +19,7 @@ namespace ToDo.Repositories
         public DbSet<Entities.Folder> Folders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
+        {            
             modelBuilder.Entity<Entities.ToDo>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -59,6 +58,7 @@ namespace ToDo.Repositories
                 new Entities.Folder { Id = 1, Name = "Root", Enabled = true });
             #endregion
 
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

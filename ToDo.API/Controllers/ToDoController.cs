@@ -6,17 +6,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ToDo.DTOs;
-using Microsoft.EntityFrameworkCore;
 using ToDo.Entities;
 using ToDo.Core.Services;
 using ToDo.API.Utilities;
 using Microsoft.Extensions.Logging;
 using ToDo.Core;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ToDo.API.Controllers
 {
     [Route("api/todo")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ToDoController : ControllerBase
     {
         private readonly ILogger<ToDoController> logger;

@@ -5,19 +5,20 @@ using System.Threading.Tasks;
 using ToDo.DTOs;
 using AutoMapper;
 using ToDo.Entities;
-using Microsoft.EntityFrameworkCore;
 using System;
-using ToDoService;
 using ToDo.Core.Services;
 using ToDo.API.Utilities;
 using ToDo.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ToDo.API.Controllers
 {
     [ApiController]
     [Route("api/folder")]
+    [Authorize (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class FolderController : ControllerBase
     {
         private readonly ILogger<FolderController> logger;

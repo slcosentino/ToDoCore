@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 using ToDo.DTOs;
 using Microsoft.EntityFrameworkCore;
 using ToDo.Entities;
+using ToDo.Core.Services;
+using ToDo.API.Utilities;
+using Microsoft.Extensions.Logging;
+using ToDo.Core;
 
 namespace ToDo.API.Controllers
 {
@@ -15,69 +19,131 @@ namespace ToDo.API.Controllers
     [ApiController]
     public class ToDoController : ControllerBase
     {
-        private readonly ContextDB contextDb;
+        private readonly ILogger<ToDoController> logger;
         private readonly IMapper mapper;
+        private readonly IToDoService service;
 
-        public ToDoController(ContextDB contextDb, IMapper mapper)
+        public ToDoController(ILogger<ToDoController> logger, IMapper mapper, IToDoService service)
         {
-            this.contextDb = contextDb;
+            this.logger = logger;
             this.mapper = mapper;
+            this.service = service;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ToDoDTO>>> GetAsync()
-        {
-            var todos = await contextDb.Todos
-                .Include(e => e.Folder)
-                .ToListAsync();            
-            return mapper.Map<List<ToDoDTO>>(todos);
+        [Route("{id:int:min(1)}")]
+        public async Task<ActionResult<ToDoDTO>> GetByIdAsync(int id)
+        {           
+            try
+            {
+                var todo = await service.GetByIdAsync(id);
+                return mapper.Map<ToDoDTO>(todo);
+            }
+            catch (LogicException ex)
+            {
+                logger.LogError("API_LOGIC_ERROR", string.Format("ToDoController.GetByIdAsync:: {0}", ex.Message), ex);
+                var e = ex.ValidationResult.Select(e => string.Format("{0} - {1}", e.MemberNames.FirstOrDefault(), e.ErrorMessage)).ToArray();
+                return BadRequest(new { Message = string.Format("We have an error to get the ToDo."), Errors = e });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("API_ERROR", string.Format("ToDoController.GetByIdAsync:: {0}", ex.Message), ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "We have an error to get the ToDo.");
+            }
+        }
+
+        [HttpPost, Route("GetAll")]
+        public async Task<ActionResult<List<ToDoDTO>>> GetAllAsync(PaginationDTO paginationDto)
+        {          
+            try
+            {
+                var pagination = mapper.Map<Pagination>(paginationDto);
+                var todos = await service.GetAllAsync(pagination);
+                var total = await service.CountAsync();
+                HttpContext.InsertTotalItemsHeader(total);
+
+                return mapper.Map<List<ToDoDTO>>(todos);
+            }
+            catch (LogicException ex)
+            {
+                logger.LogError("API_LOGIC_ERROR", string.Format("ToDoController.GetAllAsync:: {0}", ex.Message), ex);
+                var e = ex.ValidationResult.Select(e => string.Format("{0} - {1}", e.MemberNames.FirstOrDefault(), e.ErrorMessage)).ToArray();
+                return BadRequest(new { Message = string.Format("We have an error to get ToDos."), Errors = e });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("API_ERROR", string.Format("ToDoController.GetAllAsync:: {0}", ex.Message), ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "We have an error to get ToDos.");
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult> PostAsync(ToDoDTO todoDto)
-        {
-            var todo = mapper.Map<Entities.ToDo>(todoDto);
-            
-            bool folderExist = await contextDb.Folders.AnyAsync(x => x.Id == todo.FolderId);
-            if (!folderExist)
-                throw new Exception("Folder inexistente");
-
-            contextDb.Entry<Folder>(todo.Folder).State = EntityState.Unchanged;
-            todo.Id = 0;
-            contextDb.Add(todo);
-            await contextDb.SaveChangesAsync();
-            
-            return NoContent();
-        }
-
-        [HttpPut]
-        public async Task<ActionResult> PutAsync(ToDoDTO todoDto)
-        {
-
-            var actualTodo = contextDb.Todos               
-                .Where(e => e.Id == todoDto.Id)
-                .FirstOrDefault();
-
-            if (actualTodo == null)
-                throw new Exception("No se encontro el todo");
-
-            var todo = mapper.Map<Entities.ToDo>(todoDto);           
-
-            actualTodo.FolderId = todo.FolderId;
-            actualTodo.Name = todo.Name;
-
+        {           
             try
             {
-                await contextDb.SaveChangesAsync();
+                var todo = mapper.Map<Entities.ToDo>(todoDto);
+                await service.AddAsync(todo);
+                return NoContent();
             }
-            catch (Exception e)
+            catch (LogicException ex)
             {
-
-                var a = e;
+                logger.LogError("API_LOGIC_ERROR", string.Format("ToDoController.PostAsync:: {0}", ex.Message), ex);
+                var e = ex.ValidationResult.Select(e => string.Format("{0} - {1}", e.MemberNames.FirstOrDefault(), e.ErrorMessage)).ToArray();
+                return BadRequest(new { Message = string.Format("We have an error to save the ToDo."), Errors = e });
             }
-            
+            catch (Exception ex)
+            {
+                logger.LogError("API_ERROR", string.Format("ToDoController.PostAsync:: {0}", ex.Message), ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "We have an error to save the ToDo.");
+            }
+        }
+        
+        [HttpPut]
+        public async Task<ActionResult> PutAsync(ToDoDTO todoDto)
+        {           
+            try
+            {
+                var todo = mapper.Map<Entities.ToDo>(todoDto);
+                await service.UpdateAsync(todo);
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (LogicException ex)
+            {
+                logger.LogError("API_LOGIC_ERROR", string.Format("ToDoController.PutAsync:: {0}", ex.Message), ex);
+                var e = ex.ValidationResult.Select(e => string.Format("{0} - {1}", e.MemberNames.FirstOrDefault(), e.ErrorMessage)).ToArray();
+                return BadRequest(new { Message = string.Format("We have an error to update the ToDo."), Errors = e });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("API_ERROR", string.Format("ToDoController.PutAsync:: {0}", ex.Message), ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "We have an error to update the ToDo.");
+            }
+        }
+
+        [HttpDelete]
+        [Route("{id:int:min(1)}")]
+        public async Task<ActionResult> DeleteAsync(int id)
+        {            
+            try
+            {
+                var todo = await service.GetByIdAsync(id);
+
+                await service.DeleteAsync(todo);
+                return NoContent();
+            }
+            catch (LogicException ex)
+            {
+                logger.LogError("API_LOGIC_ERROR", string.Format("ToDoController.DeleteAsync:: {0}", ex.Message), ex);
+                var e = ex.ValidationResult.Select(e => string.Format("{0} - {1}", e.MemberNames.FirstOrDefault(), e.ErrorMessage)).ToArray();
+                return BadRequest(new { Message = string.Format("We have an error to delete the ToDo."), Errors = e });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("API_ERROR", string.Format("ToDoController.DeleteAsync:: {0}", ex.Message), ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "We have an error to delete the ToDo.");
+            }
         }
     }
 }

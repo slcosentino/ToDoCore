@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Entities = ToDo.Entities;
 
-namespace ToDo.API
+namespace ToDo.Repositories
 {
     public class ContextDB : DbContext
     {
@@ -27,15 +28,15 @@ namespace ToDo.API
                 //entity.Property<int>("Id");
 
                 entity.HasOne(e => e.Folder)
-                     .WithMany(e => e.Todos)
-                     .HasForeignKey(e => e.FolderId);                    
+                     .WithMany(e => e.Todos);
+                    // .HasForeignKey(e => e.FolderId);
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(255)
                     .IsUnicode(false);
-               
-            });           
+
+            });
 
             modelBuilder.Entity<Entities.Folder>(entity =>
             {
@@ -43,7 +44,7 @@ namespace ToDo.API
 
                 entity.HasMany(e => e.Todos)
                     .WithOne(e => e.Folder);
-                  
+
 
 
                 entity.Property(e => e.Name)

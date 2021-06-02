@@ -5,7 +5,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System;
+using ToDo.Core;
+using ToDo.Core.Services;
+using ToDo.Repositories;
+using ToDoService;
 
 namespace ToDo.API
 {
@@ -21,16 +24,29 @@ namespace ToDo.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddDbContext<ContextDB>(options => options.UseInMemoryDatabase(databaseName: "ToDo"));
-            services.AddDbContext<ContextDB>(options => options.UseSqlServer(Configuration.GetConnectionString("Default")));
+            services.AddDbContext<ContextDB>(options => 
+            options.UseInMemoryDatabase(databaseName: "ToDo")
+                    .EnableSensitiveDataLogging()
+                //  .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                );
+
+            
+            //services.AddDbContext<ContextDB>(options => options.UseSqlServer(Configuration.GetConnectionString("Default")));
+
             services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
-            services.AddSwaggerGen(c =>
+           //services.AddControllers( options => 
+           //{
+           //    options.Filters.Add(typeof(FilterException));
+           //});
+           services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ToDo.API", Version = "v1" });
             });
 
-            
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IToDoService, ToDoService.ToDoService>();
+            services.AddTransient<IFolderService, FolderService>(); 
         }
 
         private void AddTestData(ContextDB context)
@@ -69,8 +85,8 @@ namespace ToDo.API
                 endpoints.MapControllers();
             });
 
-            //var context = app.ApplicationServices.GetService<ContextDB>();
-           // AddTestData(context);
+            var context = app.ApplicationServices.GetService<ContextDB>();
+            AddTestData(context);
         }
 
 

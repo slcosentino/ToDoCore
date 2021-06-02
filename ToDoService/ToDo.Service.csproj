@@ -5,11 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="10.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ToDo.API\ToDo.API.csproj" />
+    <ProjectReference Include="..\ToDo.Core\ToDo.Core.csproj" />
   </ItemGroup>
 
 </Project>

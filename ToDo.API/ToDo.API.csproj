@@ -21,6 +21,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ToDo.Entities\ToDo.Entities.csproj" />
+    <ProjectReference Include="..\ToDo.Repositories\ToDo.Repositories.csproj" />
+    <ProjectReference Include="..\ToDoService\ToDo.Service.csproj" />
   </ItemGroup>
 
 </Project>

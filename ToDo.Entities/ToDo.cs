@@ -13,7 +13,7 @@ namespace ToDo.Entities
         [Required]
         [StringLength(maximumLength: 255, ErrorMessage = "El campo no puede ser superior a 255 caracteres.")]
         public string Name { get; set; }
-        public int FolderId { get; set; }
+        //public int FolderId { get; set; }
         public bool Enabled { get; set; }
 
         public virtual Folder Folder { get; set; }

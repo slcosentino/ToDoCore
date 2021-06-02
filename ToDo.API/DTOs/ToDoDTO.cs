@@ -10,7 +10,6 @@ namespace ToDo.DTOs
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public FolderDTO Folder { get; set; }
-        public bool Enabled { get; set; }
+        public FolderDTO Folder { get; set; }        
     }
 }

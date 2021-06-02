@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ToDo.Core;
+
 
 namespace ToDo.API
 {
@@ -19,7 +21,7 @@ namespace ToDo.API
             using (var scope = host.Services.CreateScope())
             {                
                 var services = scope.ServiceProvider;
-                var context = services.GetRequiredService<ContextDB>();                
+                var context = services.GetRequiredService<IUnitOfWork>();                
             }
 
 

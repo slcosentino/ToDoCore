@@ -12,34 +12,44 @@ namespace ToDoService.Tests
     public class FolderServiceTests
     {
         [TestMethod()]
-        public void AddAsyncTest()
+        public void AddAsync_OK()
         {
             Assert.Fail();
-        }        
+        }
+
+        public void AddAsync_FieldError_LogicException()
+        {
+            Assert.Fail();
+        }
+
+        public void AddAsync_ExistId()
+        {
+            Assert.Fail();
+        }
 
         public void DeleteAsync()
         {
-            
+
         }
 
         public void GetAllAsync()
         {
-            
+
         }
 
         public void GetByIdAsync()
         {
-            
+
         }
 
         public void UpdateAsync()
         {
-            
+
         }
 
         public void CountAsync()
         {
-            
+
         }
 
     }

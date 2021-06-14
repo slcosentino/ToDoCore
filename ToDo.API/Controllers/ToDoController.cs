@@ -18,7 +18,7 @@ namespace ToDo.API.Controllers
 {
     [Route("api/todo")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+   // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ToDoController : ControllerBase
     {
         private readonly ILogger<ToDoController> logger;
@@ -80,13 +80,14 @@ namespace ToDo.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(ToDoDTO todoDto)
+        public async Task<ActionResult<ToDoDTO>> PostAsync(ToDoDTO todoDto)
         {           
             try
             {
                 var todo = mapper.Map<Entities.ToDo>(todoDto);
-                await service.AddAsync(todo);
-                return NoContent();
+                var newTodo = await service.AddAsync(todo);
+                var newTodoDto = mapper.Map<ToDoDTO>(newTodo);
+                return newTodoDto;
             }
             catch (LogicException ex)
             {

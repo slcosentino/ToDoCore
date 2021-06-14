@@ -48,6 +48,7 @@ namespace ToDo.Repositories
         {
             return context.Set<TEntity>().FindAsync(id);
         }
+        
         public virtual Task<TEntity> GetByIdAsNoTrackingAsync(Expression<Func<TEntity, bool>> predicate)
         {
             var entity = context.Set<TEntity>().AsNoTracking().Where(predicate).SingleOrDefaultAsync();            
@@ -68,6 +69,7 @@ namespace ToDo.Repositories
         {          
             return context.Set<TEntity>().SingleOrDefaultAsync(predicate);
         }
+        
         public virtual Task<int> CountAsync()
         {
             return context.Set<TEntity>().CountAsync();

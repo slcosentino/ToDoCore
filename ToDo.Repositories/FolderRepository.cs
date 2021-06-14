@@ -20,17 +20,27 @@ namespace ToDo.Repositories
             get { return context as ContextDB; }
         }
 
-        public override async Task<IEnumerable<Entities.Folder>> GetAllAsync(Pagination pagination)
+        public override async Task<IEnumerable<Folder>> GetAllAsync(Pagination pagination)
         {            
             return await Context.Folders                
-                .Include(e => e.Todos)
+                .Include(e => e.Todos.Where(t => t.Enabled))
                 .Where(e => e.Enabled)
                 .OrderBy( e => e.Name)
                 .Skip((pagination.Page - 1) * pagination.RecordsPerPage) 
                 .Take(pagination.RecordsPerPage)                
                 .ToListAsync();
         }
-               
+
+        public override ValueTask<Folder> GetByIdAsync(int id)
+        {
+            var folder =  Context.Folders
+                .Where(e => e.Id == id)
+                .Include(e => e.Todos.Where(t => t.Enabled))
+                .FirstOrDefault();
+
+            return ValueTask.FromResult(folder);
+        }
+
         public override void Remove(Entities.Folder entity) 
         {
             entity.Enabled = false;            

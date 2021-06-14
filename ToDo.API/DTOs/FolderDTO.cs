@@ -9,7 +9,8 @@ namespace ToDo.DTOs
     public class FolderDTO
     {
         public int Id { get; set; }
-        public string Name { get; set; }            
+        public string Name { get; set; }
+        public List<ToDoDTO> Todos { get; set; }
 
     }
 }

@@ -18,7 +18,7 @@ namespace ToDo.API.Controllers
 {
     [ApiController]
     [Route("api/folder")]
-    [Authorize (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class FolderController : ControllerBase
     {
         private readonly ILogger<FolderController> logger;
@@ -64,7 +64,9 @@ namespace ToDo.API.Controllers
                 var folders = await service.GetAllAsync(pagination);
                 var total = await service.CountAsync();
                 HttpContext.InsertTotalItemsHeader(total);
-                return mapper.Map<List<FolderDTO>>(folders);
+                var a =  mapper.Map<List<FolderDTO>>(folders);
+
+                return a;
             }
             catch (LogicException ex)
             {

@@ -36,7 +36,18 @@ namespace ToDo.Repositories
                 .Skip((pagination.Page - 1) * pagination.RecordsPerPage)
                 .Take(pagination.RecordsPerPage)
                 .ToListAsync();
-        }         
+        }
+
+        public override ValueTask<Entities.ToDo> GetByIdAsync(int id)
+        {
+            var todo = Context.Todos                
+                .Include(e => e.Folder)
+                .Where(e => e.Id == id && e.Folder.Enabled)
+                .FirstOrDefault();
+
+            return ValueTask.FromResult(todo);
+        }
+
 
         public override void Remove(Entities.ToDo entity)
         {

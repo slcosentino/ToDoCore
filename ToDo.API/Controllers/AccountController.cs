@@ -56,7 +56,7 @@ namespace ToDo.API.Controllers
                 if (user.Succeeded)
                     return await service.CreateTokenAsync(credential);
                 else
-                    return BadRequest(new { Message = "Invalid login.", Errors = user.Errors });
+                    return BadRequest(new { Message = "User already exist.", Errors = user.Errors });
             }
             catch (Exception ex)
             {

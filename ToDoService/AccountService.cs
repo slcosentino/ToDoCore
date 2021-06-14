@@ -46,7 +46,7 @@ namespace ToDo.Service
                 new Claim("username", credential.Username)
             };
 
-            var user = await userManager.FindByIdAsync(credential.Username);
+            var user = await userManager.FindByNameAsync(credential.Username);
             var claimsDb = await userManager.GetClaimsAsync(user);
             claims.AddRange(claimsDb);
 

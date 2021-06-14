@@ -48,7 +48,7 @@ namespace ToDo.API
             {
                 var url = Configuration["frontend_url"];
                 options.AddDefaultPolicy(builder => builder.WithOrigins(url).AllowAnyMethod().AllowAnyHeader());
-            });
+            });           
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -63,7 +63,9 @@ namespace ToDo.API
                     ClockSkew = TimeSpan.Zero
                 });
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
 
             services.AddSwaggerGen(c =>
              {
@@ -86,6 +88,7 @@ namespace ToDo.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ToDo.API v1"));
             }
 
+            app.UseCors();
 
             app.UseHttpsRedirection();
 

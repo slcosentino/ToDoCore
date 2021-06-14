@@ -10,8 +10,8 @@ namespace ToDo.Service
 {
     public abstract class BaseService
     {
-        protected bool validateEntity<T>(T entity, out List<ValidationResult> results)
-        {
+        public virtual bool validateEntity<T>(T entity, out List<ValidationResult> results)
+        {           
             results = new List<ValidationResult>();
             ValidationContext context = new ValidationContext(entity, null, null);
             return Validator.TryValidateObject(entity, context, results, validateAllProperties: true);

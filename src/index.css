@@ -1,0 +1,67 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+
+.flex-table {
+  display: flex;
+  flex-flow: row wrap;
+  border-left: solid 1px #1976D2;
+  transition: 0.5s;
+ 
+}
+
+table2.table { width: 100%; }
+
+.table2 th, .table2 td { 
+  text-align: left; 
+  padding: 0.25em;
+}
+
+.table2 tr { 
+  border-bottom: 1px solid #DDD;
+}
+td.edit-buttons { text-align: right; }
+button { 
+  border-radius: 3px; 
+  border: none; 
+  margin: 0 0.25em; 
+  transition: all 0.3s;
+}
+
+button:hover { 
+  box-shadow: 0 0 4px rgba(3,3,3,0.8); 
+  opacity: 0.9;
+}
+
+button.edit { background: #6F9; }
+button.delete { background: #F69; }
+
+@media screen and (max-width: 800px) {
+  tr { 
+    display: flex; 
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0.5em 0;
+    /*border: 1px solid rgba(3,3,3,0.2);*/
+  }
+  td, th {
+    flex: 1 1 450px;
+   /*border: 0.5px solid rgba(3,3,3,0.2);*/
+  }   
+
+  
+}
+
+ 

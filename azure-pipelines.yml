@@ -15,3 +15,11 @@ variables:
 steps:
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
+
+jobs:
+- deployment: VMDeploy
+  displayName: web
+  environment:
+    name:  todoVM
+    resourceType: VirtualMachine
+    tags: web

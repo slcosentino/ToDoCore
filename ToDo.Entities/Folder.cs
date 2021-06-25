@@ -18,5 +18,10 @@ namespace ToDo.Entities
         public bool Enabled { get; set; }
         public List<ToDo> Todos { get; set; }
 
+        public Folder()
+        {
+            Todos = new List<ToDo>();
+        }
+
     }
 }

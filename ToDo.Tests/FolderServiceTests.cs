@@ -56,7 +56,7 @@ namespace ToDoService.Tests
         private Folder AddFolderTest() 
         {
             string folderName = Guid.NewGuid().ToString();
-            var newFolder = new Folder() { Name = folderName };
+            var newFolder = new Folder() { Name = folderName, Enabled = true };
             context.Folders.Add(newFolder);
             context.SaveChanges();
 
@@ -137,7 +137,7 @@ namespace ToDoService.Tests
         }
 
   
-
+        //ToDo: Check what happen within or without todos in the folder
 
         //[Test]
         //public void AddAsync_TryToAddExistId()

@@ -14,6 +14,7 @@ namespace ToDo.API.Utilities
             CreateMap<ToDoDTO, Entities.ToDo>().ReverseMap();
             CreateMap<Entities.Folder, FolderDTO>().ReverseMap();
             CreateMap<Entities.Pagination, PaginationDTO>().ReverseMap();
+            CreateMap<Entities.AppToken, AppTokenDTO>().ReverseMap();
         }
     }
 }

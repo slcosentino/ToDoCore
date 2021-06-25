@@ -6,7 +6,7 @@ namespace ToDo.Core.Services
 {
     public interface IAccountService
     {        
-        Task<string> CreateTokenAsync(UserCredential credential);
+        Task<AppToken> CreateTokenAsync(UserCredential credential);
         Task<IdentityResult> NewUserAsync(UserCredential credential);
         Task<bool> UserExistAsync(UserCredential credential);
     }

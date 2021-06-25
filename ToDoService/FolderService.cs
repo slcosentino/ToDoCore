@@ -45,6 +45,11 @@ namespace ToDoService
             return await unitOfWork.FolderRepository.GetAllAsync(pagination);
         }
 
+        public async Task<IEnumerable<Folder>> GetAllAsync()
+        {
+            return await unitOfWork.FolderRepository.GetAllAsync();
+        }
+
         public async Task<Folder> GetByIdAsync(int id)
         {
             var folder = await unitOfWork.FolderRepository.GetByIdAsync(id);

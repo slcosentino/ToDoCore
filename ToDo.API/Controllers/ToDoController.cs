@@ -55,16 +55,15 @@ namespace ToDo.API.Controllers
         }
 
         [HttpPost, Route("GetAll")]
-        public async Task<ActionResult<List<ToDoDTO>>> GetAllAsync(PaginationDTO paginationDto)
+        public async Task<ActionResult> GetAllAsync(PaginationDTO paginationDto)
         {          
             try
             {
                 var pagination = mapper.Map<Pagination>(paginationDto);
                 var todos = await service.GetAllAsync(pagination);
-                var total = await service.CountAsync();
-                HttpContext.InsertTotalItemsHeader(total);
-
-                return mapper.Map<List<ToDoDTO>>(todos);
+                var total = await service.CountAsync();                
+                var todosDto = mapper.Map<List<ToDoDTO>>(todos);
+                return Ok(new { todos = todosDto, totalItems = total });
             }
             catch (LogicException ex)
             {

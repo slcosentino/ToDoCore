@@ -43,6 +43,10 @@ namespace ToDo.Repositories
         {
             return await context.Set<TEntity>().ToListAsync();
         }
+        public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
+        {
+            return await context.Set<TEntity>().ToListAsync();
+        }
 
         public virtual ValueTask<TEntity> GetByIdAsync(int id)
         {

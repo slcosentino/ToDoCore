@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ToDo.API.DTOs;
 using ToDo.Core.Services;
@@ -26,7 +27,7 @@ namespace ToDo.API.Controllers
         }
         
         [HttpPost, Route("Login")]
-        public async Task<ActionResult<string>> LoginAsync([FromBody] UserCredentialDTO credentialDto)
+        public async Task<ActionResult<AppTokenDTO>> LoginAsync([FromBody] UserCredentialDTO credentialDto)
         {
             try
             {
@@ -34,7 +35,10 @@ namespace ToDo.API.Controllers
                 var userExist = await service.UserExistAsync(credential);
 
                 if (userExist)
-                    return await service.CreateTokenAsync(credential);
+                {
+                    var appToken = await service.CreateTokenAsync(credential);
+                    return mapper.Map<AppTokenDTO>(appToken);
+                }                    
                 else
                     return BadRequest(new { Message = "Invalid login." });
             }           
@@ -46,7 +50,7 @@ namespace ToDo.API.Controllers
         }
 
         [HttpPost, Route("NewUser")]
-        public async Task<ActionResult<string>> NewUserAsync([FromBody] UserCredentialDTO credentialDto)
+        public async Task<ActionResult<AppTokenDTO>> NewUserAsync([FromBody] UserCredentialDTO credentialDto)
         {
             try
             {
@@ -54,9 +58,12 @@ namespace ToDo.API.Controllers
                 var user = await service.NewUserAsync(credential);
 
                 if (user.Succeeded)
-                    return await service.CreateTokenAsync(credential);
+                {
+                    var appToken = await service.CreateTokenAsync(credential);
+                    return mapper.Map<AppTokenDTO>(appToken);
+                }
                 else
-                    return BadRequest(new { Message = "User already exist.", Errors = user.Errors });
+                    return BadRequest(new { Message = "We have a problem to create the user.", Errors = user.Errors });
             }
             catch (Exception ex)
             {

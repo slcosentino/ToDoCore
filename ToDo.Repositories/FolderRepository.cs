@@ -31,6 +31,15 @@ namespace ToDo.Repositories
                 .ToListAsync();
         }
 
+        public override async Task<IEnumerable<Folder>> GetAllAsync()
+        {
+            return await Context.Folders
+                .Include(e => e.Todos.Where(t => t.Enabled))
+                .Where(e => e.Enabled)
+                .OrderBy(e => e.Name)                
+                .ToListAsync();
+        }
+
         public override ValueTask<Folder> GetByIdAsync(int id)
         {
             var folder =  Context.Folders

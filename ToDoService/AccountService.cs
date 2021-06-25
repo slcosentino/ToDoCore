@@ -26,7 +26,7 @@ namespace ToDo.Service
         }        
 
         public async Task<bool> UserExistAsync(UserCredential credential)
-        {
+        {            
             var result = await signInManager.PasswordSignInAsync(credential.Username, credential.Password, isPersistent: false, lockoutOnFailure: false);
             return result.Succeeded;
         }
@@ -39,7 +39,7 @@ namespace ToDo.Service
             return result;
         }
 
-        public async Task<string> CreateTokenAsync(UserCredential credential)
+        public async Task<AppToken> CreateTokenAsync(UserCredential credential)
         {
             var claims = new List<Claim>()
             {
@@ -47,7 +47,7 @@ namespace ToDo.Service
             };
 
             var user = await userManager.FindByNameAsync(credential.Username);
-            var claimsDb = await userManager.GetClaimsAsync(user);
+            var claimsDb = await userManager.GetClaimsAsync(user);           
             claims.AddRange(claimsDb);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT_SECRET_KEY"]));
@@ -59,7 +59,9 @@ namespace ToDo.Service
 
             string strToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return await Task.FromResult(strToken);
+            var appToken = new AppToken() { Token = strToken, Expiration = expiration, UserName = credential.Username };
+
+            return await Task.FromResult(appToken);
         }
     }
 }

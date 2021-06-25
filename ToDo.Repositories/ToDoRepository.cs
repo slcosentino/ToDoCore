@@ -27,7 +27,7 @@ namespace ToDo.Repositories
             await Context.SaveChangesAsync();
         }
 
-        public override async Task<IEnumerable<Entities.ToDo>> GetAllAsync(Pagination pagination)
+        public override async Task<IEnumerable<Entities.ToDo>> GetAllAsync(Pagination? pagination)
         {
             return await Context.Todos
                 .Include(e => e.Folder)

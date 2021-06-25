@@ -18,7 +18,7 @@ namespace ToDo.API.Controllers
 {
     [ApiController]
     [Route("api/folder")]
-    //[Authorize (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+   // [Authorize (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class FolderController : ControllerBase
     {
         private readonly ILogger<FolderController> logger;
@@ -56,17 +56,15 @@ namespace ToDo.API.Controllers
         }
 
         [HttpPost, Route("GetAll")]
-        public async Task<ActionResult<List<FolderDTO>>> GetAllAsync( PaginationDTO paginationDto)
+        public async Task<ActionResult> GetAllAsync( PaginationDTO paginationDto)
         {
             try
             {
                 var pagination = mapper.Map<Pagination>(paginationDto);
                 var folders = await service.GetAllAsync(pagination);
-                var total = await service.CountAsync();
-                HttpContext.InsertTotalItemsHeader(total);
-                var a =  mapper.Map<List<FolderDTO>>(folders);
-
-                return a;
+                var total = await service.CountAsync();               
+                var foldersDto =  mapper.Map<List<FolderDTO>>(folders);
+                return Ok(new { folders = foldersDto, totalItems = total });               
             }
             catch (LogicException ex)
             {
@@ -80,6 +78,30 @@ namespace ToDo.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "We have an error to get the folders.");
             }
         }
+
+        [HttpPost, Route("GetAllWithOutPagination")]
+        public async Task<ActionResult> GetAllAsync()
+        {
+            try
+            {                
+                var folders = await service.GetAllAsync();
+                var total = await service.CountAsync();
+                var foldersDto = mapper.Map<List<FolderDTO>>(folders);
+                return Ok(new { folders = foldersDto, totalItems = total });
+            }
+            catch (LogicException ex)
+            {
+                logger.LogError("API_LOGIC_ERROR", string.Format("FolderController.GetAllAsync:: {0}", ex.Message), ex);
+                var e = ex.ValidationResult.Select(e => string.Format("{0} - {1}", e.MemberNames.FirstOrDefault(), e.ErrorMessage)).ToArray();
+                return BadRequest(new { Message = string.Format("We have an error to get the folders."), Errors = e });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("API_ERROR", string.Format("FolderController.GetAllAsync:: {0}", ex.Message), ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "We have an error to get the folders.");
+            }
+        }
+
 
         [HttpPost]
         public async Task<ActionResult> PostAsync(FolderDTO folderDto) 

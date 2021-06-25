@@ -27,16 +27,15 @@ namespace ToDo.API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddDbContext<ContextDB>(options => 
-            //options.UseInMemoryDatabase(databaseName: "ToDo")
-            //        .EnableSensitiveDataLogging()
-            //    //  .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-            //    );
+            services.AddDbContext<ContextDB>(options =>
+            options.UseInMemoryDatabase(databaseName: "ToDo")
+                    .EnableSensitiveDataLogging()
+                );
 
-            services.AddDbContext<ContextDB>(options => options.UseSqlServer(Configuration.GetConnectionString("Default")));
+            //services.AddDbContext<ContextDB>(options => options.UseSqlServer(Configuration.GetConnectionString("Default")));
 
             services.AddAutoMapper(typeof(Startup));
 
@@ -47,7 +46,7 @@ namespace ToDo.API
             services.AddCors(options =>
             {
                 var url = Configuration["frontend_url"];
-                options.AddDefaultPolicy(builder => builder.WithOrigins(url).AllowAnyMethod().AllowAnyHeader());
+                options.AddDefaultPolicy(builder => builder.WithOrigins(url).AllowAnyMethod().AllowAnyHeader());               
             });           
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -81,12 +80,12 @@ namespace ToDo.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //if (env.IsDevelopment())
-            //{
+            if (env.IsDevelopment())
+            { 
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ToDo.API v1"));
-           // }
+            }
 
             app.UseCors();
 
@@ -101,8 +100,8 @@ namespace ToDo.API
                 endpoints.MapControllers();
             });
 
-            //var context = app.ApplicationServices.GetService<ContextDB>();
-            //AddTestData(context);
+            var context = app.ApplicationServices.GetService<ContextDB>();
+            AddTestData(context);
         }
 
         private void AddTestData(ContextDB context)

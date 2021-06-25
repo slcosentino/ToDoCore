@@ -13,6 +13,7 @@ namespace ToDo.Core.Services
         Task<int> CountAsync();
         Task DeleteAsync(Folder folder);
         Task<IEnumerable<Folder>> GetAllAsync(Pagination pagination);
+        Task<IEnumerable<Folder>> GetAllAsync();
         Task<Folder> GetByIdAsync(int id);
         Task UpdateAsync(Folder folder);
     }

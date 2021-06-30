@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { startTodoAdd, startTodoLoading, startTodoUpdate, todoClearActive } from '../../actions/todo';
+import { startTodoAdd, startTodoUpdate, todoClearActive } from '../../actions/todo';
 import { set } from '../../actions/ui';
-
-const folders = [
-  { id: 1, name: "Root" },
-  { id: 2, name: "Folder1" }  
-];
-
+import { useFetchFolders } from '../../hooks/useFetchFolders';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { fas } from '@fortawesome/free-solid-svg-icons';
+ 
 
 export const Form = () => {
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const dispatch = useDispatch();
   const { active } = useSelector(state => state.todo);
+  const { todo: todoUi } = useSelector(state => state.ui);
+  const {folders, loadingFolders} = useFetchFolders();   
 
   const onSubmit = (todo) => {     
     
@@ -23,27 +23,25 @@ export const Form = () => {
       name: todo.name,
       folder: folders.find(x => x.id === Number(todo.folder))
     };     
+    todoUi.formShow = false;
 
-    if(todo.id > 0)
-    {          
-      dispatch(startTodoUpdate(todoDto));    
-    }
-    else
-    {
-      dispatch(startTodoAdd(todoDto));    
-    }
+    if(todo.id > 0)             
+      dispatch(startTodoUpdate(todoDto));        
+    else    
+      dispatch(startTodoAdd(todoDto));       
     
-    dispatch(todoClearActive());  
-    dispatch(set({formTodoShow: false }));   
+    dispatch(todoClearActive());     
+    dispatch(set({todo: todoUi}));
   };    
 
   const handleCancelClick = () => {
+    todoUi.formShow = false;     
     dispatch(todoClearActive());   
-    dispatch(set({formTodoShow: false }))     
+    dispatch(set({todo: todoUi}));        
   };
 
   useEffect(() => {
-
+    
     if (active) {
       reset({
         id: active.id,
@@ -52,7 +50,7 @@ export const Form = () => {
       });
     }     
 
-  }, [active])
+  }, [active, reset]);
 
   return (
     <form className="my-3 p-3 bg-white rounded box-shadow" onSubmit={handleSubmit(onSubmit)}>
@@ -76,7 +74,7 @@ export const Form = () => {
           {...register("folder", { required: { value: true, message: "The field folder is required." } })}
         >
           {
-            folders.map(
+            !loadingFolders && folders.map(
               folder => (
                 <option key={`folder_${folder.id}`} value={folder.id}>{folder.name}</option>
               )
@@ -84,6 +82,25 @@ export const Form = () => {
           }
 
         </select>
+
+        <div className="input-group">
+          
+            <select type="text" className="form-control">
+                <option></option>
+                <option>Super option 1</option>
+                <option>Super option 2</option>
+                <option>Super option 3</option>
+            </select>
+            <span className="input-group-addon">             
+                <i className="fa fa-refresh fa-spin"></i>
+                
+                <FontAwesomeIcon icon="spinner" spin />
+                
+            </span>
+        </div>
+   
+    
+        
         <div className="mt-1" style={{ color: "red" }} role="alert">
           {errors?.folder?.message}
         </div>

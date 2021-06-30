@@ -1,23 +1,35 @@
 import { CButton, CCardBody, CCollapse, CDataTable } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { startFolderDelete, folderSetActive } from '../../actions/folder';
+import { folderSetActive  } from '../../actions/folder';
 import { set } from '../../actions/ui';
-import { ArrowDownCircle, PencilSquare, XCircle  } from 'react-bootstrap-icons';
- 
-import {
-    cilPencil,
-    cilUser
-    
-} from '@coreui/icons'
+import { ArrowDownCircle, PencilSquare, XCircle } from 'react-bootstrap-icons';
+import { ListPagination } from '../CoreUi/ListPagination';
 import Swal from 'sweetalert2';
-
+import { useFolder } from '../../hooks/useFolder';
 
 export const List = () => {
-    const { folders } = useSelector(state => state.folder);
     const dispatch = useDispatch();
-    const [details, setDetails] = useState([])
+    const { folders } = useSelector(state => state.folder);
+    const { folder: folderUi } = useSelector(state => state.ui);
+    const [details, setDetails] = useState([]);
     const [items, setItems] = useState(folders)
+    const { activePage: pageActive, itemPerPage: itemPage, totalPage: pageTotal } = folderUi;
+    const [activePage, setActivePage] = useState(pageActive);
+    const [itemPerPage, setItemPerPage] = useState(itemPage);
+    const [totalPage, setTotalPage] = useState(pageTotal);
+    const {startFolderLoading, startFolderDelete} = useFolder();
+
+    useEffect(() => {           
+        dispatch(startFolderLoading(activePage, itemPerPage));    
+    }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+    
+    useEffect(() => {  
+        setActivePage(pageActive);
+        setItemPerPage(itemPage);
+        setTotalPage(pageTotal);        
+        setItems(folders);                      
+    }, [folders]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const toggleDetails = (index) => {
         const position = details.indexOf(index)
@@ -31,118 +43,116 @@ export const List = () => {
     }
 
     const handleEdit = (item, index) => {
-        dispatch(set({ formFolderShow: true }))
+        folderUi.formShow = true;
+        dispatch(set({ folder: folderUi }));
         dispatch(folderSetActive(item));
     }
 
-    const handleDelete = (item, index) => {  
-        
+    const handleDelete = (item, index) => {
+
         Swal.fire({
-            title: 'Do you want to delete this folder?',            
+            title: 'Do you want to delete this folder?',
             showCancelButton: true,
             confirmButtonText: `Delete`,
             denyButtonText: `Don't delete`,
-          }).then((result) => {            
+        }).then((result) => {
             if (result.isConfirmed) {
-                //Swal.fire('Saved!', '', 'success')
                 dispatch(folderSetActive(item));
                 dispatch(startFolderDelete(item));
             }
-          })
-
-        
+        })
     }
 
+    const handlePageChange = (pageNumber) => {
+        dispatch(startFolderLoading(pageNumber, itemPerPage));
+    };
 
+    const handleItemsPerPage = (iPerPage) => {
+        dispatch(startFolderLoading(activePage, iPerPage));
+    };
+   
     const fields = [
         { key: 'id', _style: { width: '10%' } },
         { key: 'name', _style: { width: '15%' }, filter: (e, a, c) => { console.log(e, a, c) } },
-       // { key: 'email', _style: { width: '15%' } },
-       // { key: 'mobileNumber', _style: { width: '15%' } },
-       // { key: 'title', _style: { width: '25%' } },
-      //  { key: 'developer', _style: { width: '10%' } },
         {
             key: 'show_details',
-            label: '',
+            label: 'Actions',
             _style: { width: '10%' },
             sorter: false,
             filter: false
         }
-    ]
+    ];
 
-    useEffect(() => {
-      setItems(folders);
-    }, [folders])
+    return (
+        <div className="my-3 p-3 bg-white box-shadow">
 
-    
-     return (
-         <div className="my-3 p-3 bg-white box-shadow">
-                      
-             <CDataTable
-                 items={items}
-                 fields={fields}                                                             
-                 itemsPerPageSelect
-                 itemsPerPage={5}
-                 hover
-                 addTableClasses="table2"
-                 sorter
-                 pagination                 
-                 scopedSlots={{                    
-                     'show_details':
-                         (item, index) => {
-                             return (
-                                 <td className="py-2">
-                                     
-                                     <ArrowDownCircle 
-                                            className="mr-2"
-                                            color="royalblue" 
-                                            size={22}
-                                            onClick={() => { toggleDetails(index) }}
-                                            style={{cursor:'pointer'}}
-                                        />
+            <CDataTable
+                items={items}
+                fields={fields}
+                itemsPerPageSelect
+                itemsPerPage={itemPerPage}
+                onPaginationChange={handleItemsPerPage}
+                hover
+                addTableClasses="table2"
+                sorter
+                scopedSlots={{
+                    'show_details':
+                        (item, index) => {
+                            return (
+                                <td className="py-2">
 
-                                        <PencilSquare 
-                                            className="mr-2"
-                                            color="royalblue" 
-                                            size={22}
-                                            onClick={() => { handleEdit(item, index) }}
-                                            style={{cursor:'pointer'}}
-                                        />  
+                                    <ArrowDownCircle
+                                        className="mr-2"
+                                        color="royalblue"
+                                        size={22}
+                                        onClick={() => { toggleDetails(index) }}
+                                        style={{ cursor: 'pointer' }}
+                                    />
 
-                                        <XCircle 
-                                            color="red" 
-                                            size={22}
-                                            onClick={() => { handleDelete(item, index) }}
-                                            style={{cursor:'pointer'}}
-                                        />  
-                                      
- 
-                                   
-                                 </td>
-                             )
-                         },
-                     'details':
-                         (item, index) => {
-                             return (
-                                 <CCollapse show={details.includes(index)}>
-                                     <CCardBody>
-                                         <h4>
-                                             {item.username}
-                                         </h4>
-                                         <p className="text-muted">User since: {item.registered}</p>
-                                         <CButton size="sm" color="info">
-                                             User Settings
-                                         </CButton>
-                                         <CButton size="sm" color="danger" className="ml-1">
-                                             Delete
-                     </CButton>
-                                     </CCardBody>
-                                 </CCollapse>
-                             )
-                         }
-                 }}
-             />
-         </div>
-     ) 
+                                    <PencilSquare
+                                        className="mr-2"
+                                        color="royalblue"
+                                        size={22}
+                                        onClick={() => { handleEdit(item, index) }}
+                                        style={{ cursor: 'pointer' }}
+                                    />
+
+                                    <XCircle
+                                        color="red"
+                                        size={22}
+                                        onClick={() => { handleDelete(item, index) }}
+                                        style={{ cursor: 'pointer' }}
+                                    />
+                                </td>
+                            )
+                        },
+                    'details':
+                        (item, index) => {
+                            return (
+                                <CCollapse show={details.includes(index)}>
+                                    <CCardBody>
+                                        <h4>
+                                            {item.username}
+                                        </h4>
+                                        <p className="text-muted">User since: {item.registered}</p>
+                                        <CButton size="sm" color="info">
+                                            User Settings
+                                        </CButton>
+                                        <CButton size="sm" color="danger" className="ml-1">
+                                            Delete
+                                        </CButton>
+                                    </CCardBody>
+                                </CCollapse>
+                            )
+                        }
+                }}
+            />
+            <ListPagination
+                totalPage={totalPage}
+                activePage={activePage}
+                handleData={handlePageChange}
+            />
+        </div>
+    )
 }
 

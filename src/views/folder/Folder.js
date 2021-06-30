@@ -1,22 +1,18 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { set } from '../../actions/ui';
 import { Form } from '../../components/Folder/Form';
 import { List } from '../../components/Folder/List';
-import { startFolderLoading } from '../../actions/folder';
 
 const Folder = () => {
 
-    const { folders } = useSelector(state => state.folder);
-    const { formFolderShow } = useSelector(state => state.ui);
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        dispatch(startFolderLoading());
-    }, []);    
+    const { folder: folderUi } = useSelector(state => state.ui);    
+    const {formShow: formFolderShow} = folderUi;
   
-    const handleNewFolder = () => {        
-        dispatch(set({formFolderShow: true }))             
+    const handleNewFolder = () => { 
+        folderUi.formShow = true;
+        dispatch(set({folder:folderUi}))          
     }
     return (
         <div>
@@ -29,7 +25,7 @@ const Folder = () => {
                 <Form />
              }
 
-             {(!formFolderShow && folders && folders.length > 0) &&
+             {!formFolderShow &&
                <List />
              }
 

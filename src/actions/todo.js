@@ -1,11 +1,13 @@
-import { fetchSinToken } from "../helpers/fetch"
+import { fetchWithInToken } from "../helpers/fetch"
+import { getTotalPages } from "../helpers/listHelper";
 import { types } from "../types/types"
+import { set } from "./ui";
  
 export const startTodoAdd = ( todo ) => {
     return async( dispatch ) => {
 
         try {
-            const response = await fetchSinToken('todo', todo, 'POST');
+            const response = await fetchWithInToken('todo', todo, 'POST');
             const body = await response.json();         
 
             if ( response.ok ) {
@@ -29,7 +31,7 @@ export const startTodoUpdate = ( todo ) => {
     return async( dispatch ) => {
 
         try {
-            const response = await fetchSinToken('todo', todo, 'PUT');
+            const response = await fetchWithInToken('todo', todo, 'PUT');
                         
             if ( response.ok ) {                                     
                 dispatch( todoUpdate( todo ) );
@@ -52,7 +54,7 @@ export const startTodoDelete = ( todo ) => {
 
         const action = `todo/${todo.id}`;
         try {
-            const response = await fetchSinToken(action, null, 'DELETE');
+            const response = await fetchWithInToken(action, null, 'DELETE');
             
             if ( response.ok ) {                    
                 dispatch( todoDelete() );
@@ -84,23 +86,29 @@ export const todoClearActive = () => {
     }
 }
 
-export const startTodoLoading = () => {
-    return async(dispatch) => {
-
+export const startTodoLoading = (activePage, recordsPerPage) => {
+    return async(dispatch, getState) => {
+       
         try {
 
             const pagination = {
-                "page": 1,
-                "recordsPerPage": 20
+                "page": activePage,
+                "recordsPerPage": recordsPerPage
               };
 
-            const response = await fetchSinToken("todo/GetAll", pagination, 'POST');
-            const todos = await response.json();
-            
-            if ( response.ok ) {                                        
-                dispatch( todoLoaded( todos ) );
+            const response = await fetchWithInToken("todo/GetAll", pagination, 'POST');
+            const {todos, totalItems} = await response.json();      
+           
+            if ( response.ok ) {                     
+                const {ui} = getState();
+                const {todo: todoUi} = ui;                   
+                todoUi.itemPerPage = recordsPerPage;
+                todoUi.activePage = activePage;           
+                todoUi.totalPage = getTotalPages(totalItems, todoUi.itemPerPage);                                      
+                dispatch( todoLoaded( todos ) );                
+                dispatch(set({todo: todoUi}));
             }
-
+            
         } catch (error) {
             console.log(error);
         }

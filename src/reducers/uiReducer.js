@@ -3,9 +3,20 @@ import { types } from "../types/types";
 const initialState = {
     loading: false,
     msgError: null,
-    sidebarShow: 'responsive',
-    formTodoShow: false,
-    formFolderShow: false
+    msgSuccess: null,
+    sidebarShow: 'responsive',     
+    folder:{
+        formShow: false,
+        activePage: 1,
+        totalPage: 0,
+        itemPerPage:20      
+    },
+    todo:{
+        formShow: false,
+        activePage: 1,
+        totalPage: 0,
+        itemPerPage:10    
+    }
 };
 
 export const uiReducer = (state = initialState, action) => {
@@ -26,4 +37,4 @@ export const uiReducer = (state = initialState, action) => {
             return state;
     }
 
-}
+};

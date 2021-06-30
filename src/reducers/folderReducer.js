@@ -51,4 +51,4 @@ export const folderReducer = (state = initialState, action) => {
             return state;
     }
 
-}
+};

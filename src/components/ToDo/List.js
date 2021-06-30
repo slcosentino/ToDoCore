@@ -1,25 +1,35 @@
-import CIcon from '@coreui/icons-react';
-import { CButton, CCardBody, CCollapse, CDataTable } from '@coreui/react'
+ import { CButton, CCardBody, CCollapse, CDataTable } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { startTodoDelete, todoSetActive } from '../actions/todo';
-import { set } from '../actions/ui';
+import { startTodoDelete, startTodoLoading, todoSetActive } from '../../actions/todo';
+import { set } from '../../actions/ui';
 import { ArrowDownCircle, PencilSquare, XCircle  } from 'react-bootstrap-icons';
- 
-import {
-    cilPencil,
-    cilUser
-    
-} from '@coreui/icons'
+import { ListPagination } from '../CoreUi/ListPagination';  
 import Swal from 'sweetalert2';
 
 
 export const List = () => {
-    const { todos } = useSelector(state => state.todo);
     const dispatch = useDispatch();
+    const { todos } = useSelector(state => state.todo);
+    const { todo: todoUi } = useSelector(state => state.ui);
     const [details, setDetails] = useState([])
     const [items, setItems] = useState(todos)
+    const { activePage: pageActive, itemPerPage: itemPage, totalPage:pageTotal } = todoUi; 
+    const [activePage, setActivePage] = useState(pageActive);
+    const [itemPerPage, setItemPerPage] = useState(itemPage);
+    const [totalPage, setTotalPage] = useState(pageTotal);
 
+    useEffect(() => {           
+        dispatch(startTodoLoading(activePage, itemPerPage));    
+    }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+    
+    useEffect(() => {  
+        setActivePage(pageActive);
+        setItemPerPage(itemPage);
+        setTotalPage(pageTotal);        
+        setItems(todos);                      
+    }, [todos]); // eslint-disable-line react-hooks/exhaustive-deps
+    
     const toggleDetails = (index) => {
         const position = details.indexOf(index)
         let newDetails = details.slice()
@@ -31,12 +41,13 @@ export const List = () => {
         setDetails(newDetails)
     }
 
-    const handleEdit = (item, index) => {
-        dispatch(set({ formTodoShow: true }))
+    const handleEdit = (item) => {
+        todoUi.formShow = true;
+        dispatch(set({todo: todoUi})) ;       
         dispatch(todoSetActive(item));
     }
 
-    const handleDelete = (item, index) => {  
+    const handleDelete = (item) => {  
         
         Swal.fire({
             title: 'Do you want to delete this item?',            
@@ -44,50 +55,45 @@ export const List = () => {
             confirmButtonText: `Delete`,
             denyButtonText: `Don't delete`,
           }).then((result) => {            
-            if (result.isConfirmed) {
-                //Swal.fire('Saved!', '', 'success')
+            if (result.isConfirmed) {             
                 dispatch(todoSetActive(item));
                 dispatch(startTodoDelete(item));
             }
-          })
-
-        
+          })        
     }
 
-
+    const handlePageChange = (pageNumber) => {                             
+        dispatch(startTodoLoading(pageNumber, itemPerPage));             
+    };
+     
+    const handleItemsPerPage = (iPerPage) => {            
+        dispatch(startTodoLoading(activePage, iPerPage));                    
+    };
+   
     const fields = [
         { key: 'id', _style: { width: '10%' } },
-        { key: 'name', _style: { width: '15%' }, filter: (e, a, c) => { console.log(e, a, c) } },
-        { key: 'folder.name', _style: { width: '15%' } },
-       // { key: 'mobileNumber', _style: { width: '15%' } },
-       // { key: 'title', _style: { width: '25%' } },
-      //  { key: 'developer', _style: { width: '10%' } },
+        { key: 'name', _style: { width: '15%' } },     
         {
             key: 'show_details',
-            label: '',
+            label: 'Actions',
             _style: { width: '10%' },
             sorter: false,
             filter: false
         }
-    ]
-
-    useEffect(() => {
-      setItems(todos);     
-    }, [todos])
-
+    ]; 
     
-     return (
+    return (
          <div className="my-3 p-3 bg-white box-shadow">
                       
              <CDataTable
                  items={items}
                  fields={fields}                                                             
                  itemsPerPageSelect
-                 itemsPerPage={10}
+                 itemsPerPage={itemPerPage}         
+                 onPaginationChange={handleItemsPerPage}                    
                  hover
                  addTableClasses="table2"
-                 sorter
-                 //pagination                 
+                 sorter                                
                  scopedSlots={{                    
                      'show_details':
                          (item, index) => {
@@ -143,6 +149,11 @@ export const List = () => {
                          }
                  }}
              />
+            <ListPagination              
+                totalPage = {totalPage}
+                activePage = {activePage}
+                handleData = {handlePageChange}                
+            />
          </div>
      ) 
 }

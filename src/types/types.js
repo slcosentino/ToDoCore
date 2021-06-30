@@ -12,9 +12,6 @@ export const types = {
     todoClearActive:"[TODO] Clear active",    
     todoDelete:"[TODO] Delete",    
     todoUpdate:"[TODO] Update",
-    todoLoaded:"[TODO] Loaded",    
-    uiSetError: "[UI] Set Error",
-    uiRemoveError: "[UI] Remove Error",
-    uiSet:"[UI] Set"
-    //todoSetAllTodo:"[TODO] SetAll",
+    todoLoaded:"[TODO] Loaded",        
+    uiSet:"[UI] Set"    
 };

@@ -20,6 +20,7 @@ const TheHeader = () => {
         { path: '/', exact: true, name: 'Home' },
         { path: '/dashboard', name: 'Dashboard' },
         { path: '/todo', name: 'ToDo' },
+        { path: '/folder', name: 'Folder' },
     ];
 
     const dispatch = useDispatch()

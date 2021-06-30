@@ -1,8 +1,11 @@
 import React from "react";
 import {CBadge, CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle, CImg} from "@coreui/react";
 import CIcon from "@coreui/icons-react";
+import { useAccount } from "../../hooks/useAccount";
 
 const TheHeaderDropdown = () => {
+    const { logoutApp } = useAccount();
+
     return (
         <CDropdown
             inNav
@@ -73,7 +76,7 @@ const TheHeaderDropdown = () => {
                     <CBadge color="primary" className="mfs-auto">42</CBadge>
                 </CDropdownItem>
                 <CDropdownItem divider/>
-                <CDropdownItem>
+                <CDropdownItem onClick={logoutApp}>
                     <CIcon name="cil-lock-locked" className="mfe-2"/>
                     Lock Account
                 </CDropdownItem>

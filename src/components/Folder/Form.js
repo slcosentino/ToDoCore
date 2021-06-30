@@ -1,38 +1,38 @@
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { startFolderAdd,  startFolderUpdate, folderClearActive } from '../../actions/folder';
+import { folderClearActive } from '../../actions/folder';
 import { set } from '../../actions/ui';
+import { useFolder } from '../../hooks/useFolder';
+import { FormAlerts } from '../CoreUi/FormAlerts';
+import { FormButtons } from '../CoreUi/FormButtons';
 
 export const Form = () => {
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const dispatch = useDispatch();
   const { active } = useSelector(state => state.folder);
+  const { folder: folderUi } = useSelector(state => state.ui);
+  const { startFolderAdd, startFolderUpdate } = useFolder();  
 
-  const onSubmit = (folder) => {     
-    
-    const folderDto = { 
+  const onSubmit = (folder) => {
+
+    const folderDto = {
       id: (folder.id === undefined) ? 0 : folder.id,
-      name: folder.name     
-    };     
-
-    if(folder.id > 0)
-    {          
-      dispatch(startFolderUpdate(folderDto));    
-    }
+      name: folder.name
+    };
+    
+    if (folder.id > 0)
+      dispatch(startFolderUpdate(folderDto));
     else
-    {
-      dispatch(startFolderAdd(folderDto));    
-    }
+      dispatch(startFolderAdd(folderDto));
 
-    dispatch(folderClearActive());   
-    dispatch(set({formFolderShow: false }));   
-  };    
+  };
 
   const handleCancelClick = () => {
-    dispatch(folderClearActive());   
-    dispatch(set({formFolderShow: false }))     
+    folderUi.formShow = false;
+    dispatch(folderClearActive());
+    dispatch(set({ folder: folderUi }))
   };
 
   useEffect(() => {
@@ -40,28 +40,35 @@ export const Form = () => {
     if (active) {
       reset({
         id: active.id,
-        name: active.name        
+        name: active.name
       });
-    }     
+    }
+  }, [active, reset]);  
 
-  }, [active])
-    return (
-        <form className="my-3 p-3 bg-white rounded box-shadow" onSubmit={handleSubmit(onSubmit)}>
-        <div>
+  return (
+    <form className="my-3 p-3 bg-white rounded box-shadow" onSubmit={handleSubmit(onSubmit)}>
+      <div className="col-md-6" >
+        
+        <div className="form-group">
           <label>Name</label>
-          <input        
+          <input
             type="text"
-            className="form-control col-md-6"
+            className="form-control"
             {...register("name", { required: { value: true, message: "The field name is required." } })}
           />
           <div className="mt-1" style={{ color: "red" }} role="alert">
             {errors?.name?.message}
           </div>
-        </div> 
+        </div>
         
-        <button type="submit" className="mt-2 btn btn-primary">Save</button>
-        <button className="mt-2 btn btn-primary" onClick={handleCancelClick}>Cancel</button>
+        <FormButtons
+          firstBtnTitle={active ? "Update": "Save" }
+          secondBtnFunction={handleCancelClick}
+        />
 
-      </form>
-    )
+        <FormAlerts />
+        
+      </div>
+    </form>
+  )
 }

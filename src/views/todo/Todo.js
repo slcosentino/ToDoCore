@@ -1,22 +1,17 @@
- import React, { useEffect } from 'react'
+ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { set } from '../../actions/ui';
 import { Form } from '../../components/ToDo/Form';
-import { List } from '../../components/List';
-import { startTodoLoading } from '../../actions/todo';
+import { List } from '../../components/ToDo/List';
 
 const Todo = () => {
-
-    const { active,todos } = useSelector(state => state.todo);
-    const { formTodoShow } = useSelector(state => state.ui);
-    const dispatch = useDispatch();
-
-    useEffect(() => {
-        dispatch(startTodoLoading());
-    }, []);    
+    const dispatch = useDispatch();    
+    const { todo: todoUi } = useSelector(state => state.ui);
+    const {formShow: formTodoShow} = todoUi;
   
-    const handleNewTodo = () => {        
-        dispatch(set({formTodoShow: true }))             
+    const handleNewTodo = () => {     
+        todoUi.formShow = true;         
+        dispatch(set({todo: todoUi})) ;    
     }
     return (
         <div>
@@ -29,7 +24,7 @@ const Todo = () => {
                 <Form />
              }
 
-             {(!formTodoShow && todos && todos.length > 0) &&
+             {!formTodoShow &&
                <List />
              }
 

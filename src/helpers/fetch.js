@@ -1,6 +1,8 @@
+import { getToken } from "./localStorage";
+
 const baseUrl = process.env.REACT_APP_API_URL;
 
-const fetchSinToken = ( endpoint, data, method = 'GET' ) => {
+const fetchWithOutToken = ( endpoint, data, method = 'GET' ) => {
 
     const url = `${ baseUrl }/${ endpoint }`;
 
@@ -17,33 +19,32 @@ const fetchSinToken = ( endpoint, data, method = 'GET' ) => {
     }
 }
 
-const fetchConToken = ( endpoint, data, method = 'GET' ) => {
+const fetchWithInToken = ( endpoint, data, method = 'GET' ) => { 
 
     const url = `${ baseUrl }/${ endpoint }`;
-    const token = localStorage.getItem('token') || '';
+    const {token} = getToken() || '';
 
     if ( method === 'GET' ) {
         return fetch( url, {
             method,
             headers: {
-                'x-token': token
+                'Authorization': `bearer ${token}`
             }
         });
     } else {
+                
         return fetch( url, {
             method,
             headers: {
                 'Content-type': 'application/json',
-                'x-token': token
+                'Authorization': `bearer ${token}`
             },
             body: JSON.stringify( data )
         });
     }
 }
 
-
-
 export {
-    fetchSinToken,
-    fetchConToken
+    fetchWithInToken,
+    fetchWithOutToken
 }
